@@ -1,0 +1,2 @@
+## when someone commits a file, Git guesses whether that file is a text file or not, and if it is, it will commit a version of the file where all CR + LF bytes are replaced with LF bytes. It doesn't directly affect what files look like in the working tree, there are other settings that will convert LF bytes to CR + LF bytes when checking out a file.
+* text=auto
