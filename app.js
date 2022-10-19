@@ -11,12 +11,24 @@ const morgan = require("morgan");
 // bring in express handlebars
 const exphbs = require("express-handlebars");
 
+// bring in passport for authentication strategy
+const passport = require("passport");
+
+// bring in express session for passport
+const session = require("express-session");
+
 // import the connectDB we made in db.js
 const connectDB = require("./config/db");
 
 // load our config file
 // call dotenv.config method and pass in an object with the path to the config file
 dotenv.config({path: "./config/config.env"});
+
+// passport config
+// we can pass in the passport variable above
+// when you use require, you are importing the module, and then giving it a parameter (in this case passport)
+require("./config/passport")(passport)
+
 
 // run the connectDB function imported from above
 connectDB()
@@ -35,6 +47,19 @@ app.engine(".hbs", exphbs.engine({defaultLayout: "main", extname: ".hbs"}));
 
 // we set our view engine to handlebars with the modified extension name "hbs"
 app.set("view engine", ".hbs");
+
+// express-session middleware (must be above passport middleware)
+app.use(session({
+  secret: "keyboard cat", // this can be anything?
+  resave: false, // this states we don't want to save a session if nothing is modified
+  saveUninitialized: false, // this states don't save a session untill something is stored
+  // later we will put a store value here for Mongoose to store it to our MongoDB
+}));
+
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Static Folder
 app.use(express.static(path.join(__dirname, "public")));
