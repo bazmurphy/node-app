@@ -1,3 +1,6 @@
+// bring in the core NodeJS module path
+const path = require("path");
+
 const express = require("express");
 // bring in our environment variables
 const dotenv = require("dotenv");
@@ -34,7 +37,9 @@ app.engine(".hbs", exphbs.engine({defaultLayout: "main", extname: ".hbs"}));
 app.set("view engine", ".hbs");
 
 // Static Folder
-app.use(express.static)
+app.use(express.static(path.join(__dirname, "public")));
+// app.use('/static', express.static(path.join(__dirname, 'public')));
+// app.use(express.static('public'));
 
 // Routes
 app.use("/", require("./routes/index"));
