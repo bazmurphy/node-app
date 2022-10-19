@@ -13,13 +13,24 @@ const router = express.Router();
 // the 2nd parameter is using passport.authenticate method
 // the 1st parameter is the strategy
 // the 2nd parameter is an object with the key of scope
-router.get("/google", passport.authenticate("google", { scope: ['profile'] }));
+router.get(
+  "/google", 
+  passport.authenticate("google", { scope: ['profile'] })
+  );
 
-// @desc  Dashboard
-// @route GET /dashboard
-router.get("/dashboard", (req, res) => {
-  // res.send("Dashboard");
-  res.render("dashboard");
-})
+// @desc  Google Authenticate Callback
+// @route GET /auth/google/callback
+// 2nd parameter is using passport.authenticate method
+// 1st parameter is the strategy
+// 2nd parameter is an object with a Failure Redirect (what happens when it fails) we want it to redirect to login
+// 3rd parameter is the (req, res)
+router.get(
+  "/google/callback", 
+  passport.authenticate("google", { failureRedirect: "/" }), // if it fails it will redirect to the root
+    (req, res) => {
+      // if its successful we want to redirect to the dashboard
+      res.redirect("/dashboard")
+    }
+)
 
 module.exports = router;
