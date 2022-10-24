@@ -48,15 +48,23 @@ connectDB()
 // initialise our app
 const app = express();
 
+// Body Parser (to understand Form data)
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// Handlebars Helpers
+const { formatDate } = require("./helpers/hbs");
+
+// Handlebars
 // we need to use the exphbs variable above, and call its method ".engine()"
 // and then provide a defaultLayout because the template engine wraps everything in that layout
 // and then to prevent us having to use ".handlebars" we can abbreviate it to ".hbs"
-app.engine(".hbs", exphbs.engine({defaultLayout: "main", extname: ".hbs"}));
-
+app.engine(".hbs", exphbs.engine({ helpers: { formatDate }, defaultLayout: "main", extname: ".hbs" }));
+ 
 // we set our view engine to handlebars with the modified extension name "hbs"
 app.set("view engine", ".hbs");
 
@@ -87,7 +95,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Routes
 app.use("/", require("./routes/index"));
 app.use("/auth", require("./routes/auth"));
-
+app.use("/stories", require("./routes/stories"));
 
 // whenever we use process.env we can use variables that are in that config
 const PORT = process.env.PORT || 3000;
