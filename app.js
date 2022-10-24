@@ -2,6 +2,11 @@
 const path = require("path");
 
 const express = require("express");
+
+// bring in mongoose
+// Mongoose is a MongoDB object modeling tool designed to work in an asynchronous environment.
+const mongoose = require("mongoose");
+
 // bring in our environment variables
 const dotenv = require("dotenv");
 
@@ -16,6 +21,13 @@ const passport = require("passport");
 
 // bring in express session for passport
 const session = require("express-session");
+
+// bring in connect mongo - this is initially to store our user sessions
+// and we pass in the "session" middleware from above INTO IT (???)
+// OUTDATED - WE CANNOT DO THIS ANYMORE
+// const MongoStore = require("connect-mongo")(session);
+const MongoStore = require("connect-mongo");
+// go look at app.use(session({})) for more info
 
 // import the connectDB we made in db.js
 const connectDB = require("./config/db");
@@ -54,6 +66,12 @@ app.use(session({
   resave: false, // this states we don't want to save a session if nothing is modified
   saveUninitialized: false, // this states don't save a session untill something is stored
   // later we will put a store value here for Mongoose to store it to our MongoDB
+  // in our express session middleware and add in a store:
+  // set it to a new MongoStore which takes in an object
+  // and we pass in our current mongooseConnection
+  // store: new MongoStore({ mongooseConnection: mongoose.connection })
+  // ^ THE ABOVE IS OUTDATED, NEW:
+  store: MongoStore.create({ client: mongoose.connection.getClient() })
 }));
 
 

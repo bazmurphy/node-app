@@ -31,4 +31,23 @@ router.get("/google/callback",
     }
 );
 
+// @desc  Logout User
+// @route /auth/logout
+// OLD VERSION
+// router.get("/logout", (req, res) => {
+//   req.logout();
+//   res.redirect("/");
+// });
+
+// NEW VERSION
+// In the new version of passport, req.logout() is now an asynchronous function, whereas previously it was synchronous. Hence you need to modify the logout route.
+router.get('/logout', (req, res, next) => {
+    req.logout((error) => {
+        if (error) {
+          return next(error);
+        }
+        res.redirect('/');
+    });  
+})
+
 module.exports = router;
