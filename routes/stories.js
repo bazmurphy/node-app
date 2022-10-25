@@ -31,4 +31,19 @@ router.post("/", ensureAuth, async (req, res) => {
   }
 });
 
+// @desc  Show All Stories
+// @route GET /stories
+router.get("/", ensureAuth, async (req, res) => {
+  try {
+    const stories = await Story.find({ status: "public" }) // go to the database and find all stories which are public
+      .populate("user") // add on to that the user data, name etc. because its not part of the Story model, its part of the User model
+      .sort({ createdAt: "descending" }) // sort it
+      .lean(); // turn it into regular javascript object
+    res.render("stories/index", { stories, }); // render the page using the stories/index VIEW and pass in the stories object
+  } catch (error) {
+    console.error(error);
+    res.render("error/500");
+  }
+});
+
 module.exports = router;

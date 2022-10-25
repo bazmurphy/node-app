@@ -57,13 +57,13 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // Handlebars Helpers
-const { formatDate } = require("./helpers/hbs");
+const { formatDate, truncate, stripTags, editIcon } = require("./helpers/hbs");
 
 // Handlebars
 // we need to use the exphbs variable above, and call its method ".engine()"
 // and then provide a defaultLayout because the template engine wraps everything in that layout
 // and then to prevent us having to use ".handlebars" we can abbreviate it to ".hbs"
-app.engine(".hbs", exphbs.engine({ helpers: { formatDate }, defaultLayout: "main", extname: ".hbs" }));
+app.engine(".hbs", exphbs.engine({ helpers: { formatDate, truncate, stripTags, editIcon }, defaultLayout: "main", extname: ".hbs" }));
  
 // we set our view engine to handlebars with the modified extension name "hbs"
 app.set("view engine", ".hbs");
@@ -86,6 +86,13 @@ app.use(session({
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Set Global Variable
+// we have to set it as a middleware
+app.use(function (req, res, next) {
+  res.locals.user = req.user || null;
+  next();
+})
 
 // Static Folder
 app.use(express.static(path.join(__dirname, "public")));
