@@ -11,3 +11,14 @@ p {
 .fa-small {
   font-size: 16px !important;
 }
+
+/* .chip img {
+  max-width: 2rem;
+  max-height: 2rem;
+  border-radius: 100%;
+} */
+
+.btn-float {
+  float: left;
+  margin-right: 10px;
+}
