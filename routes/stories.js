@@ -1,4 +1,5 @@
 // require express
+const { response } = require("express");
 const express = require("express");
 // use the .Router() method 
 const router = express.Router();
@@ -66,6 +67,27 @@ router.get("/:id", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.render("error/404");
+  }
+});
+
+// @desc  UserId Stories
+// @route GET /stories/user/:userId
+// whenever you want to use middleware (in this case what we wrote ourselves, you put it after the 1st parameter (the route))
+router.get("/user/:userId", ensureAuth, async (req, res) => {
+  try {
+    const stories = await Story.find({
+      user: req.params.userId, // get all stories that match the userId
+      status: "public", // and only the stories which are "public"
+    })
+    .populate("user") // add the user data
+    .lean()
+
+    res.render("stories/index", { // use the same template as the public stories uses but only show stories that belong to the specific userId
+      stories,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.render("error/404");
   }
 });
 
