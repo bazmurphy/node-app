@@ -46,6 +46,29 @@ router.get("/", ensureAuth, async (req, res) => {
   }
 });
 
+// @desc  Show Single Story
+// @route GET /stories/:id
+// whenever you want to use middleware (in this case what we wrote ourselves, you put it after the 1st parameter (the route))
+router.get("/:id", ensureAuth, async (req, res) => {
+  try {
+    let story = await Story.findById(req.params.id)
+      .populate("user") // bring in the user data
+      .lean(); // convert to regular javascript 
+    
+    if (!story) {
+      return res.render("error/404");
+    }
+
+    res.render("stories/show", {
+      story // pass in an object with the story that we fetched from the database so we can display it
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.render("error/404");
+  }
+});
+
 // @desc  Show Edit Page
 // @route GET /stories/edit:id
 // whenever you want to use middleware (in this case what we wrote ourselves, you put it after the 1st parameter (the route))
