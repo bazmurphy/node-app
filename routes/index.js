@@ -13,7 +13,6 @@ const Story = require("../models/Story");
 // @route GET /
 // whenever you want to use middleware (in this case what we wrote ourselves, you put it after the 1st parameter (the route))
 router.get("/", ensureGuest, (req, res) => {
-  // res.send("Login");
   res.render("login", {
     layout: "login",
   });

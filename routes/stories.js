@@ -1,5 +1,4 @@
 // require express
-const { response } = require("express");
 const express = require("express");
 // use the .Router() method 
 const router = express.Router();
@@ -40,7 +39,9 @@ router.get("/", ensureAuth, async (req, res) => {
       .populate("user") // add on to that the user data, name etc. because its not part of the Story model, its part of the User model
       .sort({ createdAt: "descending" }) // sort it
       .lean(); // turn it into regular javascript object
-    res.render("stories/index", { stories, }); // render the page using the stories/index VIEW and pass in the stories object
+    res.render("stories/index", { // render the page using the stories/index VIEW and pass in the stories object
+      stories, 
+    }); 
   } catch (error) {
     console.error(error);
     res.render("error/500");
@@ -58,12 +59,11 @@ router.get("/:id", ensureAuth, async (req, res) => {
     
     if (!story) {
       return res.render("error/404");
+    } else {
+      res.render("stories/show", {
+        story // pass in an object with the story that we fetched from the database so we can display it
+      });
     }
-
-    res.render("stories/show", {
-      story // pass in an object with the story that we fetched from the database so we can display it
-    });
-
   } catch (error) {
     console.error(error);
     res.render("error/404");
@@ -95,23 +95,28 @@ router.get("/user/:userId", ensureAuth, async (req, res) => {
 // @route GET /stories/edit:id
 // whenever you want to use middleware (in this case what we wrote ourselves, you put it after the 1st parameter (the route))
 router.get("/edit/:id", ensureAuth, async (req, res) => {
-  // use the findOne method from Mongo to go look for a story with the id of whatever parameter was passed in
-  console.log(req.params.id);
-  const story = await Story.findOne({_id: req.params.id}).lean()
+  try {
+    // use the findOne method from Mongo to go look for a story with the id of whatever parameter was passed in
+    console.log(req.params.id);
+    const story = await Story.findOne({_id: req.params.id}).lean()
 
-  // if there is no story with that id in the datbase render 404 error
-  if (!story) {
-    return res.render("error/404");
-  }
+    // if there is no story with that id in the datbase render 404 error
+    if (!story) {
+      return res.render("error/404");
+    }
 
-  // if the story user is not the same as the currently logged in user
-  if (story.user != req.user.id ) {
-    res.redirect("/stories");
-  } else {
-    //render the stories/edit page with the specific story passed in
-    res.render("stories/edit", { 
-      story,
-    })
+    // if the story user is not the same as the currently logged in user
+    if (story.user != req.user.id ) {
+      res.redirect("/stories");
+    } else {
+      //render the stories/edit page with the specific story passed in
+      res.render("stories/edit", { 
+        story,
+      })
+    }
+  } catch (error) {
+    console.error(error);
+    return res.render("error/500");
   }
 });
 
@@ -151,10 +156,30 @@ router.put("/:id", ensureAuth, async (req, res) => {
 // @route DELETE /stories/:id
 // whenever you want to use middleware (in this case what we wrote ourselves, you put it after the 1st parameter (the route))
 router.delete("/:id", ensureAuth, async (req, res) => {
+
+  // try {
+  //   // use the Mongoose remove method to delete the story with the id of the request.parameter.id
+  //   await Story.remove({ _id : req.params.id });
+  //   res.redirect("/dashboard");
+  // } catch (error) {
+  //   console.error(error);
+  //   return res.render("error/500");
+  // }
+
+  // check if the story belongs to the user before allowing them to delete it
   try {
-    // use the Mongoose remove method to delete the story with the id of the request.parameter.id
-    await Story.remove({ _id : req.params.id });
-    res.redirect("/dashboard");
+    let story = await Story.findById(req.params.id).lean()
+
+    if (!story) {
+      return res.render("error/404");
+    }
+
+    if (story.user != req.user.id) {
+      res.redirect("/stories");
+    } else {
+      await Story.remove({ _id : req.params.id });
+      res.redirect("/dashboard");
+    }
   } catch (error) {
     console.error(error);
     return res.render("error/500");
